@@ -1,0 +1,60 @@
+html { 
+  background: url(images/bg.jpg) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  background-size: cover;
+}
+
+.app {
+  margin-left: 20%;
+  margin-right: 20%;
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
+  color: navajowhite;
+  padding-top: 3em;
+}
+
+.login-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5em;
+  border: 1px solid;
+  padding: 0.5em;
+}
+
+.login-header-name {
+  margin-right: 1em;
+}
+
+.chat-message-box {
+  padding: 0.5em;
+  height: 15em;
+  border: 1px solid;
+  margin-bottom: 0.5em;
+  display: flex;
+  overflow-y: scroll;
+  flex-direction: column-reverse;
+  justify-content: end;
+}
+
+.chat-message-sender-name {
+  margin-right: 1em;
+}
+
+.chat-input input {
+  border: 1px solid navajowhite;
+  color: navajowhite;
+  width: 100%;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
+
+.chat-input input:hover {
+  color: #fff000;
+}
+
+.login-header,
+.chat-message-box,
+.chat-input input {
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 0.5em;
+}
