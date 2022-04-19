@@ -36,31 +36,16 @@ export async function fetchMasks(token: string) {
   return json;
 }
 
-export async function postMasks(masks: Mask[], token: string) {
+export async function postMasks(masks: Mask[], accessToken: string, idToken: string) {
   const resp = await fetch(`${SERVER_URI}/masks`, 
     { 
       method: 'POST', 
       body: JSON.stringify(masks),
       headers: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${accessToken}`,
+        'id-token': idToken,
       }
     });
   const json = await resp.json();
   return json;
 }
-
-export async function fetchUser(token: string) {
-  const resp = await fetch('https://graph.microsoft.com/v1.0/me', 
-    { 
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-  const json = await resp.json();
-  return json;
-}
-
-
-// d737Q~dE8ezZyy_XiuuMtdHIl6G0VJdrzrBMa
-
-

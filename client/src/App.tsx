@@ -5,21 +5,23 @@ import { getTokens, login, logout } from './authenticate';
 import Chat from './Chat';
 import LoginHeader from './LoginHeader';
 import MaskSettings from './MaskSettings';
-import { fetchMasks, fetchMessages, fetchUser, postMessage, postMasks } from './api';
+import { fetchMasks, fetchMessages, postMessage, postMasks } from './api';
 import { Mask, Message } from './types';
 
 const FETCH_INTERVAL = 2000;
 
 const App = () => {
   const [accessToken, setAccessToken] = useState<string>(null);
+  const [idToken, setIdToken] = useState(null);
   const [idClaims, setIdClaims] = useState(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [masks, setMasks] = useState<Mask[]>([]);
 
   useEffect(() => {
     async function callGetTokens() {
-      const { accessToken, idClaims } = await getTokens();
+      const { accessToken, idClaims, idToken } = await getTokens();
       if (accessToken) setAccessToken(accessToken);
+      if (idToken) setIdToken(idToken);
       if (idClaims) setIdClaims(idClaims);
     }
     if (!accessToken || !idClaims) callGetTokens();
@@ -39,20 +41,13 @@ const App = () => {
     setMasks(masks);
   }
 
-  async function callFetchUser() {
-    const user = await fetchUser(accessToken);
-    console.log('user', user);
-  }
-
-
   useEffect(() => {
     if (accessToken) callFetchMasks();
-    if (accessToken) callFetchUser();
   }, [accessToken]);
 
 
   return (
-    <div className="app">
+    <div className='app'>
       <LoginHeader
         name={idClaims?.name}
         loginHandler={login}
@@ -73,13 +68,15 @@ const App = () => {
             }, accessToken);
           }}
         />
+        { idClaims?.roles?.includes('Chat.Admin')  &&
         <MaskSettings
           masks={masks}
-          addMaskHandler={async (masks) => {
-            const newMasks = await postMasks(masks, accessToken);
+          updateMasksHandler={async (masks) => {
+            const newMasks = await postMasks(masks, accessToken, idToken);
             setMasks(newMasks);
           }}
         />
+      }
       </div>
   )
 };

@@ -19,6 +19,7 @@ const ChatInput = ({ disabled, label, sendMessageHandler }: ChatInputProps) => {
         disabled={disabled}
         type="text" 
         name="message" 
+        autoComplete="off"
         placeholder={label}>
       </input>
     </form>

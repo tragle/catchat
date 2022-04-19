@@ -1,11 +1,18 @@
-import express from 'express';
-import { decode, JwtPayload } from 'jsonwebtoken';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import express from 'express';
+import { Request, Response, NextFunction } from 'express';
+import { decode, JwtPayload } from 'jsonwebtoken';
+
+require('dotenv').config();
+
+const CLIENT_APP_ID = process.env.CLIENT_APP_ID;
+const AUDIENCE = process.env.AUDIENCE;
 
 interface User {
   id: string;
   displayName: string;
+  role: 'admin' | 'user';
 }
 
 interface Message {
@@ -14,15 +21,26 @@ interface Message {
   body: string;
 }
 
+const accessTokenValidator = function(req: Request, res: Response, next: NextFunction) {
+  const accessToken = req.headers.authorization.split(' ')[1];
+  const claims = parseClaims(accessToken);
+  if (claims?.aud === AUDIENCE && claims?.appid === CLIENT_APP_ID) {
+    next();
+  } else {
+    res.status(401).end();
+  }
+}
+
 const messages: Message[] = [];
-const users: User[] = [];
 let masks: string[] = [];
 
+const port = 3000;
 const app = express();
+
 app.use(bodyParser.text());
 app.use(cors());
+app.use(accessTokenValidator);
 
-const port = 3000;
 
 const isValidToken = (token: JwtPayload | string) => true;
 
@@ -57,14 +75,22 @@ app.get('/masks', (req, res) => {
 });
 
 app.post('/masks', (req, res) => {
-  const body = req.body;
-  masks = JSON.parse(body);
-  res.json(masks);
+  const idToken = req.header('id-token');
+  const claims = parseClaims(idToken);
+  if (isAdmin(parseClaims(idToken))) {
+    const body = req.body;
+    masks = JSON.parse(body);
+    res.json(masks);
+  } else {
+    res.status(403);
+  }
 });
 
-
+const isAdmin = (idToken: JwtPayload) => (
+  idToken?.roles
+  && (idToken.roles as Array<string>)
+    .includes('Chat.Admin'));
+  
 app.listen(port, () => {
   console.log(`Chat server listening on port ${port}.`);
 });
-
-// d737Q~dE8ezZyy_XiuuMtdHIl6G0VJdrzrBMa
