@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import useInterval from 'use-interval';
-import { getTokens, login, logout } from './authenticate';
 import Chat from './Chat';
 import LoginHeader from './LoginHeader';
 import MaskSettings from './MaskSettings';
@@ -10,66 +9,55 @@ import { Mask, Message } from './types';
 
 const FETCH_INTERVAL = 2000;
 
+const user = {
+  displayName: `Guest${Math.floor(Math.random() *1000)}`,
+  id: `${Date.now()}`
+};
+
 const App = () => {
-  const [accessToken, setAccessToken] = useState<string>(null);
-  const [idClaims, setIdClaims] = useState(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [masks, setMasks] = useState<Mask[]>([]);
 
-  useEffect(() => {
-    async function callGetTokens() {
-      const { accessToken, idClaims } = await getTokens();
-      if (accessToken) setAccessToken(accessToken);
-      if (idClaims) setIdClaims(idClaims);
-    }
-    if (!accessToken || !idClaims) callGetTokens();
-  });
-
   useInterval(() => {
     async function callFetchMessages() {
-      const messages = await fetchMessages(accessToken);
+      const messages = await fetchMessages();
       setMessages(messages);
     }
 
-    if (accessToken) callFetchMessages();
+    callFetchMessages();
   }, FETCH_INTERVAL, true);
 
   async function callFetchMasks() {
-    const masks = await fetchMasks(accessToken);
+    const masks = await fetchMasks();
     setMasks(masks);
   }
 
   useEffect(() => {
-    if (accessToken) callFetchMasks();
-  }, [accessToken]);
+    callFetchMasks();
+  }, []);
 
 
   return (
     <div className='app'>
-      <LoginHeader
-        name={idClaims?.name}
-        loginHandler={login}
-        logoutHandler={logout}
-      />
+      <h1>CAT CHAT</h1>
       <Chat 
-        disabled={!accessToken}
         messages={messages}
         sendMessageHandler={
           (message) => {
-            const { name, oid } = idClaims;
+            const { displayName, id } = user;
             postMessage({
               sender: {
-                displayName: name,
-                id: oid
+                displayName,
+                id
               },
               body: message
-            }, accessToken);
+            });
           }}
         />
       <MaskSettings
         masks={masks}
         updateMasksHandler={async (masks) => {
-          const newMasks = await postMasks(masks, accessToken);
+          const newMasks = await postMasks(masks);
           setMasks(newMasks);
         }}
       />
