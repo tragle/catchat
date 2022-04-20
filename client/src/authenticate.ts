@@ -36,13 +36,11 @@ export function logout() {
 export async function getTokens() {
   let accessToken;
   let idClaims;
-  let idToken;
   let tokenResult = await msalInstance.handleRedirectPromise();
   if (tokenResult) {
     console.log('got some token(s)', tokenResult);
     accessToken = tokenResult.accessToken;
     idClaims = tokenResult.idTokenClaims;
-    idToken = tokenResult.idToken
   }
-  return ({ accessToken, idClaims, idToken });
+  return ({ accessToken, idClaims });
 }

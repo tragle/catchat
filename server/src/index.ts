@@ -12,7 +12,6 @@ const AUDIENCE = process.env.AUDIENCE;
 interface User {
   id: string;
   displayName: string;
-  role: 'admin' | 'user';
 }
 
 interface Message {
@@ -75,22 +74,11 @@ app.get('/masks', (req, res) => {
 });
 
 app.post('/masks', (req, res) => {
-  const idToken = req.header('id-token');
-  const claims = parseClaims(idToken);
-  if (isAdmin(parseClaims(idToken))) {
-    const body = req.body;
-    masks = JSON.parse(body);
-    res.json(masks);
-  } else {
-    res.status(403);
-  }
+  const body = req.body;
+  masks = JSON.parse(body);
+  res.json(masks);
 });
-
-const isAdmin = (idToken: JwtPayload) => (
-  idToken?.roles
-  && (idToken.roles as Array<string>)
-    .includes('Chat.Admin'));
-  
+ 
 app.listen(port, () => {
   console.log(`Chat server listening on port ${port}.`);
 });
